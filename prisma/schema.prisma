@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(RECEPCIONISTA)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cliente {
+  id        String   @id @default(cuid())
+  nome      String
+  cpf       String   @unique
+  telefone  String
+  email     String?
+  endereco  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  pets      Pet[]
+}
+
+model Pet {
+  id         String     @id @default(cuid())
+  nome       String
+  especie    String
+  raca       String?
+  sexo       String
+  nascimento DateTime?
+  clienteId  String
+  cliente    Cliente    @relation(fields: [clienteId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  consultas  Consulta[]
+}
+
+model Consulta {
+  id         String      @id @default(cuid())
+  data       DateTime
+  status     Status      @default(AGENDADA)
+  motivo     String?
+  petId      String
+  pet        Pet         @relation(fields: [petId], references: [id])
+  prontuario Prontuario?
+  cobranca   Cobranca?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Prontuario {
+  id          String       @id @default(cuid())
+  diagnostico String?
+  observacoes String?
+  consultaId  String       @unique
+  consulta    Consulta     @relation(fields: [consultaId], references: [id])
+  prescricoes Prescricao[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Prescricao {
+  id           String     @id @default(cuid())
+  medicamento  String
+  dosagem      String
+  instrucoes   String?
+  prontuarioId String
+  prontuario   Prontuario @relation(fields: [prontuarioId], references: [id])
+  createdAt    DateTime   @default(now())
+}
+
+model Produto {
+  id        String   @id @default(cuid())
+  nome      String
+  categoria String?
+  descricao String?
+  estoque   Int      @default(0)
+  preco     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cobranca {
+  id         String    @id @default(cuid())
+  valor      Float
+  status     Pagamento @default(PENDENTE)
+  consultaId String    @unique
+  consulta   Consulta  @relation(fields: [consultaId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  VETERINARIO
+  RECEPCIONISTA
+}
+
+enum Status {
+  AGENDADA
+  CONFIRMADA
+  CANCELADA
+  CONCLUIDA
+}
+
+enum Pagamento {
+  PENDENTE
+  PAGO
+  CANCELADO
+}
