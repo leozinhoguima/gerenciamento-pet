@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    await prisma.pet.delete({ where: { id: params.id } })
+    const { id } = await params
+
+    // Deleta consultas vinculadas ao pet
+    await prisma.consulta.deleteMany({ where: { petId: id } })
+
+    // Deleta o pet
+    await prisma.pet.delete({ where: { id } })
+
     return NextResponse.json({ success: true })
-  } catch (error) {
-    return NextResponse.json({ error: "Erro ao deletar pet" }, { status: 500 })
+  } catch (error: any) {
+    console.error("ERRO AO DELETAR:", error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
