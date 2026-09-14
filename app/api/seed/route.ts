@@ -17,4 +17,4 @@ export async function GET() {
   })
 
   return NextResponse.json({ message: "Usuário criado!", user: { email: user.email } })
-}
+} 
