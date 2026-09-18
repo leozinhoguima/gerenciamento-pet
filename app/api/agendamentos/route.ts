@@ -8,9 +8,10 @@ export async function GET() {
       include: { pet: { include: { cliente: true } } },
     })
     return NextResponse.json(consultas)
-  } catch (error) {
-    return NextResponse.json({ error: "Erro ao buscar agendamentos" }, { status: 500 })
-  }
+} catch (error) {
+  console.error("Erro ao buscar agendamentos:", error)
+  return NextResponse.json({ error: "Erro ao buscar agendamentos" }, { status: 500 })
+}
 }
 
 export async function POST(request: Request) {
